@@ -1,5 +1,5 @@
 import type { City, Position } from '../types/game.types';
-import { calculateDistance } from '../data/worldCities';
+import { calculateDistance, WORLD_CITIES } from '../data/worldCities';
 import { citiesCache } from './citiesCache';
 
 // GeoNames API - бесплатный сервис с реальными городами
@@ -16,8 +16,8 @@ export async function getRealCitiesFromGeoNames(
   }
 
   try {
-    // GeoNames API для поиска городов в радиусе
-    const url = `http://api.geonames.org/findNearbyPlaceNameJSON?lat=${center.lat}&lng=${center.lng}&radius=${radiusKm}&cities=cities15000&maxRows=500&username=${GEONAMES_USERNAME}`;
+    // GeoNames API для поиска городов в радиусе (используем HTTPS)
+    const url = `https://secure.geonames.org/findNearbyPlaceNameJSON?lat=${center.lat}&lng=${center.lng}&radius=${radiusKm}&cities=cities15000&maxRows=500&username=${GEONAMES_USERNAME}`;
     
     const response = await fetch(url);
     const data = await response.json();
@@ -125,10 +125,16 @@ export async function getRealCitiesFromPhoton(
   }
 
   try {
-    // Photon API для геокодинга
-    const url = `https://photon.komoot.io/api/?lat=${center.lat}&lon=${center.lng}&limit=50`;
+    // Photon API для реверс-геокодинга
+    const url = `https://photon.komoot.io/reverse?lat=${center.lat}&lon=${center.lng}&radius=${radiusKm}`;
     
     const response = await fetch(url);
+    
+    if (!response.ok) {
+      console.error('Photon API error:', response.status);
+      return [];
+    }
+    
     const data = await response.json();
     
     const cities: City[] = data.features
@@ -162,6 +168,17 @@ export async function getRealCitiesFromPhoton(
   }
 }
 
+// Функция для получения городов из локальной базы (fallback)
+export function getLocalCities(
+  center: Position,
+  radiusKm: number
+): City[] {
+  return WORLD_CITIES.filter(city => {
+    const distance = calculateDistance(center, city.position);
+    return distance <= radiusKm;
+  });
+}
+
 // Главная функция - пробует разные источники
 export async function getRealCities(
   center: Position,
@@ -180,6 +197,12 @@ export async function getRealCities(
   if (cities.length === 0) {
     // Если и GeoNames не работает, пробуем Photon
     cities = await getRealCitiesFromPhoton(center, radiusKm);
+  }
+  
+  if (cities.length === 0) {
+    // Если все API недоступны, используем локальную базу
+    console.warn('Все API недоступны, используем локальную базу городов');
+    cities = getLocalCities(center, radiusKm);
   }
   
   // Убираем дубликаты по названию и близкому расположению

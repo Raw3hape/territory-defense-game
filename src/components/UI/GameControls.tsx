@@ -58,7 +58,7 @@ export const GameControls: React.FC = () => {
         // Ограничиваем до 15 городов для каждого нашего города
         for (const ourCity of ourCities) {
           try {
-            const realCities = await getRealCities(ourCity.position, MAX_TOWER_DISTANCE, 15);
+            const realCities = await getRealCities(ourCity.position, MAX_TOWER_DISTANCE, 25);
             
             for (const city of realCities) {
               if (!cityIds.has(city.id)) {

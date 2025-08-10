@@ -180,7 +180,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
         
         if (!isNearCity) {
-          showNotification('Ошибка размещения', 'Башни можно строить только в радиусе 300 км от ваших городов!', 'warning');
+          showNotification('Ошибка размещения', 'Башни можно строить только в радиусе 300 км от ваших городов!', 'warning', 3000);
           return false;
         }
 
@@ -224,7 +224,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         
         // Проверяем золото
         if (state.player.resources.gold < cost) {
-          showNotification('Недостаточно золота', `Нужно ${cost} золота для этой башни`, 'warning');
+          showNotification('Недостаточно золота', `Нужно ${cost} золота для этой башни`, 'warning', 2500);
           return false;
         }
         
@@ -233,7 +233,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const towerLimit = get().getTowerLimit();
         
         if (currentTowerCount >= towerLimit) {
-          showNotification('Лимит башен', 'Захватите новый город для увеличения лимита!', 'warning');
+          showNotification('Лимит башен', 'Захватите новый город для увеличения лимита!', 'warning', 3000);
           return false;
         }
         
@@ -260,7 +260,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
         
         if (!cityPosition) {
-          showNotification('Ошибка', 'Город не найден', 'error');
+          showNotification('Ошибка', 'Город не найден', 'error', 2000);
           return false;
         }
         
@@ -297,7 +297,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           showAvailableCitiesForTowers: false
         }));
         
-        showNotification('Башня установлена', `Башня размещена в городе ${cityName}`, 'success');
+        showNotification('Башня установлена', `Башня размещена в городе ${cityName}`, 'success', 2000);
         return true;
       },
 

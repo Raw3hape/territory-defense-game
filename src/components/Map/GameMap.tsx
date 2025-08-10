@@ -181,7 +181,7 @@ function MapClickHandler() {
           if (state.player.resources.gold >= 500) {
             if (captureNewCity(clickedCity.id)) {
               setShowAvailableCities(false);
-              showNotification('Город захвачен!', `${clickedCity.name} успешно захвачен! Новый лимит башен: ${state.getTowerLimit()}`, 'success');
+              showNotification('Город захвачен!', `${clickedCity.name} успешно захвачен! Новый лимит башен: ${state.getTowerLimit()}`, 'success', 3000);
             }
           } else {
             showNotification('Недостаточно золота!', `Нужно: 500 золота. У вас: ${state.player.resources.gold}`, 'warning');
@@ -534,7 +534,7 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
                     if (captureNewCity(city.id)) {
                       // Убираем подсветку после захвата
                       state.setShowAvailableCities(false);
-                      showNotification('Город захвачен!', `${city.name} успешно захвачен! Новый лимит башен: ${state.getTowerLimit()}`, 'success');
+                      showNotification('Город захвачен!', `${city.name} успешно захвачен! Новый лимит башен: ${state.getTowerLimit()}`, 'success', 3000);
                     }
                   } else {
                     showNotification('Недостаточно золота!', `Нужно: 500 золота. У вас: ${state.player.resources.gold}`, 'warning');

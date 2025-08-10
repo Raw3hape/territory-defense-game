@@ -70,14 +70,15 @@ export async function getRealCitiesFromOSM(
     const east = center.lng + lngDegrees;
     
     // Overpass QL запрос для получения городов
-    // Фильтруем только города с населением больше 50000
+    // Получаем все города и крупные поселения
     const query = `
       [out:json][timeout:10];
       (
-        node["place"="city"]["name"]["population"](${south},${west},${north},${east});
-        node["place"="town"]["name"]["population">"50000"](${south},${west},${north},${east});
+        node["place"="city"]["name"](${south},${west},${north},${east});
+        node["place"="town"]["name"](${south},${west},${north},${east});
+        node["place"="village"]["name"]["population">"10000"](${south},${west},${north},${east});
       );
-      out body 30;
+      out body 50;
     `;
     
     const response = await fetch('https://overpass-api.de/api/interpreter', {
@@ -186,7 +187,7 @@ export function getLocalCities(
 export async function getRealCities(
   center: Position,
   radiusKm: number,
-  maxCities: number = 20 // Ограничение количества городов
+  maxCities: number = 30 // Увеличиваем лимит городов
 ): Promise<City[]> {
   let cities: City[] = [];
   
@@ -220,22 +221,24 @@ export async function getRealCities(
   });
   
   // Сортируем города по приоритету:
-  // 1. Столицы
-  // 2. По населению (большие города важнее)
-  // 3. По расстоянию (ближе - важнее)
+  // 1. По расстоянию (ближе - важнее)
+  // 2. Столицы
+  // 3. По населению (большие города важнее)
   const sortedCities = Array.from(uniqueCities.values()).sort((a, b) => {
-    // Столицы в приоритете
+    const distA = calculateDistance(center, a.position);
+    const distB = calculateDistance(center, b.position);
+    
+    // Сначала по расстоянию (ближе лучше)
+    if (Math.abs(distA - distB) > 50) { // Если разница больше 50 км
+      return distA - distB;
+    }
+    
+    // Потом столицы в приоритете
     if (a.isCapital && !b.isCapital) return -1;
     if (!a.isCapital && b.isCapital) return 1;
     
     // Затем по населению
-    const popDiff = b.population - a.population;
-    if (Math.abs(popDiff) > 100000) return popDiff;
-    
-    // Затем по расстоянию
-    const distA = calculateDistance(center, a.position);
-    const distB = calculateDistance(center, b.position);
-    return distA - distB;
+    return b.population - a.population;
   });
   
   // Возвращаем ограниченное количество самых важных городов

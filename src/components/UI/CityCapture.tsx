@@ -52,7 +52,7 @@ export const CityCapture: React.FC = () => {
         <h3>🏰 Захват городов</h3>
         <div className="capture-info">
           <span>Башни: {currentTowers}/{towerLimit}</span>
-          <span>Городов: {(player?.capturedCities.length || 0) + 1}</span>
+          <span>Городов: {player?.capturedCities.length || 1}</span>
         </div>
       </div>
       

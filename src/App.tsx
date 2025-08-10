@@ -3,13 +3,14 @@ import { GameMap } from './components/Map/GameMap';
 import { CitySearch } from './components/UI/CitySearch';
 import { GameControls } from './components/UI/GameControls';
 import { GameController } from './components/Game/GameController';
+import { GameOverModal } from './components/UI/GameOverModal';
 import { useGameStore } from './store/gameStore';
 import type { City } from './types/game.types';
 import './App.css';
 
 function App() {
   const [gameStarted, setGameStarted] = useState(false);
-  const { initGame, player } = useGameStore();
+  const { initGame, player, gameOverData, resetGame } = useGameStore();
 
   const handleSelectCity = (city: City) => {
     initGame(city);
@@ -70,6 +71,21 @@ function App() {
       <GameController />
       <GameMap center={player?.startCity?.position} />
       <GameControls />
+      
+      <GameOverModal
+        isOpen={gameOverData?.isOpen || false}
+        cityName={gameOverData?.cityName || ''}
+        score={gameOverData?.score || 0}
+        wave={gameOverData?.wave || 0}
+        onRestart={() => {
+          resetGame();
+          setGameStarted(false);
+        }}
+        onMainMenu={() => {
+          resetGame();
+          setGameStarted(false);
+        }}
+      />
       
       <div className="game-header">
         <h1 className="game-logo">Territory Defense</h1>

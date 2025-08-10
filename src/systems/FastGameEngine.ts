@@ -675,21 +675,8 @@ export class GameEngine {
       // Останавливаем игру немедленно
       this.stop();
       
-      // Показываем сообщение с небольшой задержкой
-      setTimeout(() => {
-        showNotification(
-          'Игра окончена!', 
-          `Ваш город захвачен! Волна: ${state.currentWave}, Очки: ${state.player.resources.score}`,
-          'error',
-          10000
-        );
-        
-        // Полный сброс состояния
-        state.resetGame();
-        this.gameOverTriggered = false;
-        this.basesInitialized = false;
-        this.routeCache.clear();
-      }, 500);
+      // Game Over обрабатывается через модальное окно в gameStore
+      // Просто останавливаем движок, модальное окно покажется автоматически
     }
   }
   

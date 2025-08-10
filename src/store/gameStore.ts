@@ -13,6 +13,12 @@ interface GameStore extends GameState {
   availableCitiesForCapture: City[];
   showAvailableCities: boolean;
   capturedCitiesData: CapturedCity[];
+  gameOverData: {
+    isOpen: boolean;
+    cityName: string;
+    score: number;
+    wave: number;
+  } | null;
   
   // Actions
   initGame: (startCity: City) => void;
@@ -68,6 +74,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       availableCitiesForCapture: [],
       showAvailableCities: false,
       capturedCitiesData: [],
+      gameOverData: null,
       
       player: {
         id: 'player1',
@@ -337,16 +344,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
           gameSpeed: 1,
           isPaused: false,
           selectedTower: undefined,
-          placingTowerType: undefined
+          placingTowerType: undefined,
+          gameOverData: null
         });
       },
 
       // Новые методы для системы городов
       getTowerLimit: () => {
         const state = get();
-        // Стартовый город не считается в capturedCities, но дает 5 башен
-        const totalCities = state.player.capturedCities.length + 1;
-        return totalCities * TOWERS_PER_CITY;
+        // Только стартовый город дает 5 башен, плюс по 5 за каждый захваченный
+        const totalCities = state.player.capturedCities.length;
+        return (totalCities + 1) * TOWERS_PER_CITY;
       },
 
       getCurrentTowerCount: () => {
@@ -449,21 +457,36 @@ export const useGameStore = create<GameStore>((set, get) => ({
           );
           
           // Проверяем, не уничтожен ли город
+          const oldCity = state.capturedCitiesData.find(city => city.id === cityId);
           const destroyedCity = updatedCities.find(city => city.id === cityId && city.health <= 0);
-          if (destroyedCity) {
-            showNotification('Город уничтожен!', `${destroyedCity.name} уничтожен! Игра окончена!`, 'error', 5000);
-            // Сбрасываем игру
-            get().resetGame();
-            return { capturedCitiesData: [] };
+          if (destroyedCity && oldCity && oldCity.health > 0) { // Показываем уведомление только если город был жив
+            // Показываем модальное окно Game Over
+            return { 
+              capturedCitiesData: updatedCities,
+              gameOverData: {
+                isOpen: true,
+                cityName: destroyedCity.name,
+                score: state.player.resources.score,
+                wave: state.currentWave
+              }
+            };
           }
           
           // Проверяем стартовый город
           if (cityId === state.player.startCity?.id) {
-            const newHealth = Math.max(0, (state.player.startCity.health || 100) - damage);
-            if (newHealth <= 0) {
-              showNotification('Стартовый город уничтожен!', `${state.player.startCity.name} уничтожен! Игра окончена!`, 'error', 5000);
-              get().resetGame();
-              return { capturedCitiesData: [] };
+            const oldHealth = state.player.startCity.health || 100;
+            const newHealth = Math.max(0, oldHealth - damage);
+            if (newHealth <= 0 && oldHealth > 0) { // Показываем только при первом уничтожении
+              // Показываем модальное окно Game Over
+              return { 
+                capturedCitiesData: updatedCities,
+                gameOverData: {
+                  isOpen: true,
+                  cityName: state.player.startCity.name,
+                  score: state.player.resources.score,
+                  wave: state.currentWave
+                }
+              };
             }
             return {
               capturedCitiesData: updatedCities,

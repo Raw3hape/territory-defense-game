@@ -25,6 +25,33 @@ export const WORLD_CITIES: City[] = [
   { id: 'istanbul', name: 'Istanbul', position: { lat: 41.0082, lng: 28.9784 }, population: 15500000, country: 'Turkey' },
   { id: 'ankara', name: 'Ankara', position: { lat: 39.9334, lng: 32.8597 }, population: 5700000, country: 'Turkey', isCapital: true },
   
+  // Турция - дополнительные города
+  { id: 'izmir', name: 'Izmir', position: { lat: 38.4192, lng: 27.1287 }, population: 4400000, country: 'Turkey' },
+  { id: 'bursa', name: 'Bursa', position: { lat: 40.1826, lng: 29.0665 }, population: 3100000, country: 'Turkey' },
+  { id: 'adana', name: 'Adana', position: { lat: 37.0000, lng: 35.3213 }, population: 2300000, country: 'Turkey' },
+  { id: 'antalya', name: 'Antalya', position: { lat: 36.8969, lng: 30.7133 }, population: 2600000, country: 'Turkey' },
+  { id: 'konya', name: 'Konya', position: { lat: 37.8667, lng: 32.4833 }, population: 2300000, country: 'Turkey' },
+  { id: 'gaziantep', name: 'Gaziantep', position: { lat: 37.0662, lng: 37.3833 }, population: 2100000, country: 'Turkey' },
+  { id: 'kayseri', name: 'Kayseri', position: { lat: 38.7312, lng: 35.4787 }, population: 1400000, country: 'Turkey' },
+  { id: 'eskisehir', name: 'Eskisehir', position: { lat: 39.7767, lng: 30.5206 }, population: 900000, country: 'Turkey' },
+  { id: 'samsun', name: 'Samsun', position: { lat: 41.2867, lng: 36.3300 }, population: 700000, country: 'Turkey' },
+  { id: 'trabzon', name: 'Trabzon', position: { lat: 41.0015, lng: 39.7178 }, population: 800000, country: 'Turkey' },
+  { id: 'edirne', name: 'Edirne', position: { lat: 41.6764, lng: 26.5557 }, population: 180000, country: 'Turkey' },
+  { id: 'tekirdag', name: 'Tekirdag', position: { lat: 40.9833, lng: 27.5167 }, population: 200000, country: 'Turkey' },
+  { id: 'izmit', name: 'Izmit', position: { lat: 40.7633, lng: 29.9408 }, population: 380000, country: 'Turkey' },
+  { id: 'balikesir', name: 'Balikesir', position: { lat: 39.6484, lng: 27.8826 }, population: 350000, country: 'Turkey' },
+  { id: 'canakkale', name: 'Canakkale', position: { lat: 40.1553, lng: 26.4142 }, population: 140000, country: 'Turkey' },
+  
+  // Греция - дополнительные города
+  { id: 'thessaloniki', name: 'Thessaloniki', position: { lat: 40.6401, lng: 22.9444 }, population: 1100000, country: 'Greece' },
+  { id: 'patras', name: 'Patras', position: { lat: 38.2444, lng: 21.7344 }, population: 215000, country: 'Greece' },
+  { id: 'heraklion', name: 'Heraklion', position: { lat: 35.3387, lng: 25.1442 }, population: 180000, country: 'Greece' },
+  { id: 'larissa', name: 'Larissa', position: { lat: 39.6390, lng: 22.4191 }, population: 165000, country: 'Greece' },
+  { id: 'volos', name: 'Volos', position: { lat: 39.3619, lng: 22.9419 }, population: 145000, country: 'Greece' },
+  { id: 'ioannina', name: 'Ioannina', position: { lat: 39.6650, lng: 20.8537 }, population: 120000, country: 'Greece' },
+  { id: 'kavala', name: 'Kavala', position: { lat: 40.9397, lng: 24.4019 }, population: 70000, country: 'Greece' },
+  { id: 'alexandroupoli', name: 'Alexandroupoli', position: { lat: 40.8475, lng: 25.8744 }, population: 75000, country: 'Greece' },
+  
   // СНГ и Восточная Европа
   // Беларусь - дополнительные города
   { id: 'brest', name: 'Brest', position: { lat: 52.0975, lng: 23.6877 }, population: 350000, country: 'Belarus' },

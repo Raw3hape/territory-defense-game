@@ -366,6 +366,10 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
         )}
 
         {/* Доступные города для размещения башен */}
+        {(() => {
+          console.log('Отображение городов для башен:', showAvailableCitiesForTowers, placingTowerType, availableCitiesForTowers.length);
+          return null;
+        })()}
         {showAvailableCitiesForTowers && placingTowerType && availableCitiesForTowers.map(city => {
           // Проверяем есть ли уже башня в этом городе
           const hasTower = towers.some(t => 

@@ -51,14 +51,17 @@ export const GameControls: React.FC = () => {
       
       // Асинхронно загружаем реальные города через API
       const loadRealCities = async () => {
+        console.log('Начинаем загрузку городов для башен...');
         const availableCities: City[] = [];
         const cityIds = new Set<string>();
         
         // Для каждого нашего города загружаем реальные города в радиусе
-        // Ограничиваем до 15 городов для каждого нашего города
+        // Ограничиваем до 25 городов для каждого нашего города
         for (const ourCity of ourCities) {
           try {
+            console.log(`Загрузка городов в радиусе ${MAX_TOWER_DISTANCE}км от ${ourCity.name}`);
             const realCities = await getRealCities(ourCity.position, MAX_TOWER_DISTANCE, 25);
+            console.log(`Найдено ${realCities.length} городов`);
             
             for (const city of realCities) {
               if (!cityIds.has(city.id)) {
@@ -79,6 +82,7 @@ export const GameControls: React.FC = () => {
           }
         }
         
+        console.log('Всего доступных городов для башен:', availableCities.length);
         setAvailableCitiesForTowers(availableCities);
         setShowAvailableCitiesForTowers(true);
       };

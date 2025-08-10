@@ -239,18 +239,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
         
         // Находим город
         let cityPosition: Position | null = null;
+        let cityName = '';
         
         if (state.player.startCity?.id === cityId) {
           cityPosition = state.player.startCity.position;
+          cityName = state.player.startCity.name;
         } else {
           const capturedCity = state.capturedCitiesData.find(c => c.id === cityId);
           if (capturedCity) {
             cityPosition = capturedCity.position;
+            cityName = capturedCity.name;
           } else {
             // Может быть это город из списка доступных для башен
             const availableCity = state.availableCitiesForTowers.find(c => c.id === cityId);
             if (availableCity) {
               cityPosition = availableCity.position;
+              cityName = availableCity.name;
             }
           }
         }
@@ -259,6 +263,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
           showNotification('Ошибка', 'Город не найден', 'error');
           return false;
         }
+        
+        console.log(`Размещение башни в городе ${cityName} (${cityId}) на позиции:`, cityPosition);
 
         const newTower: Tower = {
           id: `tower-${Date.now()}`,
@@ -291,7 +297,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           showAvailableCitiesForTowers: false
         }));
         
-        showNotification('Башня установлена', `Башня размещена в городе`, 'success');
+        showNotification('Башня установлена', `Башня размещена в городе ${cityName}`, 'success');
         return true;
       },
 

@@ -701,7 +701,7 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
                   <div style="
                     width: 45px;
                     height: 45px;
-                    background: linear-gradient(135deg, #2196F3, #1976D2);
+                    background: linear-gradient(135deg, #4CAF50, #45a049);
                     border: 3px solid white;
                     border-radius: 50%;
                     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
@@ -711,7 +711,7 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
                     font-size: 20px;
                     position: relative;
                   ">
-                    🏙️
+                    🏰
                     <div style="
                       position: absolute;
                       bottom: -10px;

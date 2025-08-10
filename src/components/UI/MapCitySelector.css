@@ -1,0 +1,200 @@
+.map-city-selector {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.map-selector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.map-selector-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.close-button:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.map-selector-instructions {
+  padding: 15px 20px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.map-selector-instructions p {
+  margin: 5px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.map-selector-container {
+  position: relative;
+}
+
+.map-selector-loading {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 10px;
+  border: 3px solid #f0f0f0;
+  border-top: 3px solid #4A90E2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  }
+  50% {
+    box-shadow: 0 3px 12px rgba(76, 175, 80, 0.5);
+  }
+  100% {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  }
+}
+
+.map-selector-result {
+  padding: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.map-selector-result h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.selected-city-info {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.city-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 5px 0;
+}
+
+.city-country {
+  font-size: 16px;
+  color: #666;
+  margin: 0 0 10px 0;
+}
+
+.city-coords {
+  font-size: 12px;
+  color: #999;
+  margin: 0;
+  font-family: monospace;
+}
+
+.map-selector-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-button,
+.cancel-button {
+  flex: 1;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 500;
+}
+
+.confirm-button {
+  background: #4CAF50;
+  color: white;
+}
+
+.confirm-button:hover {
+  background: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+.cancel-button {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.cancel-button:hover {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.map-selector-error {
+  padding: 15px 20px;
+  background: #ffebee;
+  color: #c62828;
+  border-top: 1px solid #ffcdd2;
+}
+
+.map-selector-error p {
+  margin: 0;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+  .map-city-selector {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+  }
+  
+  .map-selector-container {
+    height: 400px;
+  }
+}

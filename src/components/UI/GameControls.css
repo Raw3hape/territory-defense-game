@@ -1,0 +1,267 @@
+.game-controls {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  min-width: 280px;
+  max-width: 320px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Панель здоровья города */
+.city-health-panel {
+  padding: 12px;
+  background: #fff3e0;
+  border-radius: 8px;
+  border: 2px solid #ff9800;
+}
+
+.city-health-panel h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.health-bar {
+  position: relative;
+  width: 100%;
+  height: 24px;
+  background: #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.health-fill {
+  height: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.health-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 600;
+  font-size: 14px;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Панель ресурсов */
+.resources-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.resource {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.resource-icon {
+  font-size: 20px;
+}
+
+.resource-value {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+}
+
+/* Панель башен */
+.towers-panel h3 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.tower-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.tower-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tower-button:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tower-button.active {
+  background: #f0f8ff;
+  transform: scale(1.05);
+}
+
+.tower-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tower-icon {
+  font-size: 24px;
+}
+
+.tower-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.tower-cost {
+  font-size: 12px;
+  color: #666;
+}
+
+.placement-hint {
+  padding: 8px;
+  background: #e3f2fd;
+  color: #1976d2;
+  border-radius: 6px;
+  font-size: 14px;
+  text-align: center;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Управление скоростью */
+.game-speed-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.control-button {
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
+  background: #4A90E2;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-button:hover {
+  background: #357ABD;
+  transform: scale(1.1);
+}
+
+.control-button.paused {
+  background: #4CAF50;
+}
+
+.speed-buttons {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+.speed-button {
+  flex: 1;
+  padding: 8px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.speed-button:hover {
+  background: #f5f5f5;
+}
+
+.speed-button.active {
+  background: #4A90E2;
+  color: white;
+  border-color: #4A90E2;
+}
+
+/* Информация о территории */
+.territory-info {
+  padding: 12px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.territory-info h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.territory-info p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+  .game-controls {
+    top: auto;
+    bottom: 20px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .resources-panel {
+    width: 100%;
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .towers-panel {
+    width: 100%;
+  }
+
+  .tower-buttons {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .game-speed-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .territory-info {
+    width: 100%;
+  }
+}

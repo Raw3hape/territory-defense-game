@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { WORLD_CITIES } from '../../data/worldCities';
-import { getAllCitiesInRadius } from '../../services/cityGeneratorService';
+import { getRealCities } from '../../services/geoNamesService';
+import { calculateDistance } from '../../data/worldCities';
 import type { City } from '../../types/game.types';
 import './CityCapture.css';
 
@@ -25,17 +25,28 @@ export const CityCapture: React.FC = () => {
       // Список исключений (стартовый город + захваченные)
       const excludeIds = [player.startCity.id, ...player.capturedCities];
       
-      // Получаем все города в радиусе (реальные + сгенерированные)
-      const available = getAllCitiesInRadius(
-        player.startCity.position,
-        MAX_CAPTURE_DISTANCE,
-        WORLD_CITIES,
-        excludeIds,
-        30 // Минимум 30км для захвата городов
-      );
+      // Асинхронно загружаем реальные города
+      const loadCities = async () => {
+        try {
+          const realCities = await getRealCities(player.startCity.position, MAX_CAPTURE_DISTANCE);
+          
+          // Фильтруем города: исключаем уже захваченные и слишком близкие
+          const available = realCities.filter(city => {
+            if (excludeIds.includes(city.id)) return false;
+            const distance = calculateDistance(player.startCity!.position, city.position);
+            return distance >= 30 && distance <= MAX_CAPTURE_DISTANCE; // Минимум 30км
+          });
+          
+          setAvailableCities(available);
+          setAvailableCitiesForCapture(available);
+        } catch (error) {
+          console.error('Ошибка загрузки городов:', error);
+          setAvailableCities([]);
+          setAvailableCitiesForCapture([]);
+        }
+      };
       
-      setAvailableCities(available);
-      setAvailableCitiesForCapture(available);
+      loadCities();
     }
   }, [player, setAvailableCitiesForCapture]);
   

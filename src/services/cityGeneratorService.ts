@@ -1,5 +1,6 @@
 import type { City, Position } from '../types/game.types';
 import { calculateDistance } from '../data/worldCities';
+import { getAllRealCitiesInRadius } from './realCitiesService';
 
 // Генератор случайных городов вокруг точки
 export function generateNearbyCities(centerPosition: Position, radius: number, count: number = 20): City[] {
@@ -52,12 +53,33 @@ export function generateNearbyCities(centerPosition: Position, radius: number, c
 }
 
 // Получить все города в радиусе (реальные + сгенерированные)
-export function getAllCitiesInRadius(
+export async function getAllCitiesInRadius(
   centerPosition: Position, 
   radius: number,
   existingCities: City[],
   excludeIds: string[] = [],
   minDistance: number = 30 // По умолчанию минимум 30км для захвата городов
+): Promise<City[]> {
+  // Сначала пробуем получить реальные города через API
+  const realCities = await getAllRealCitiesInRadius(centerPosition, radius, existingCities);
+  
+  // Фильтруем по минимальному расстоянию и исключенным ID
+  const filteredCities = realCities.filter(city => {
+    if (excludeIds.includes(city.id)) return false;
+    const distance = calculateDistance(centerPosition, city.position);
+    return distance <= radius && distance >= minDistance;
+  });
+  
+  return filteredCities;
+}
+
+// Синхронная версия для обратной совместимости
+export function getAllCitiesInRadiusSync(
+  centerPosition: Position, 
+  radius: number,
+  existingCities: City[],
+  excludeIds: string[] = [],
+  minDistance: number = 30
 ): City[] {
   // Фильтруем существующие города по радиусу
   const realCitiesInRadius = existingCities.filter(city => {
@@ -78,7 +100,27 @@ export function getAllCitiesInRadius(
 }
 
 // Получить ВСЕ города в радиусе для размещения башен (включая близкие)
-export function getAllCitiesForTowers(
+export async function getAllCitiesForTowers(
+  centerPosition: Position,
+  radius: number,
+  existingCities: City[],
+  excludeIds: string[] = []
+): Promise<City[]> {
+  // Получаем реальные города через API
+  const realCities = await getAllRealCitiesInRadius(centerPosition, radius, existingCities);
+  
+  // Фильтруем только по исключенным ID (без минимального расстояния)
+  const citiesInRadius = realCities.filter(city => {
+    if (excludeIds.includes(city.id)) return false;
+    const distance = calculateDistance(centerPosition, city.position);
+    return distance <= radius; // Без минимального расстояния
+  });
+  
+  return citiesInRadius;
+}
+
+// Синхронная версия для башен
+export function getAllCitiesForTowersSync(
   centerPosition: Position,
   radius: number,
   existingCities: City[],

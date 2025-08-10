@@ -3,8 +3,7 @@ import { useGameStore } from '../../store/gameStore';
 import { TowerType } from '../../types/game.types';
 import type { City } from '../../types/game.types';
 import { CityCapture } from './CityCapture';
-import { getAllCitiesForTowers } from '../../services/cityGeneratorService';
-import { WORLD_CITIES } from '../../data/worldCities';
+import { getRealCities } from '../../services/geoNamesService';
 import './GameControls.css';
 
 const TOWER_INFO = {
@@ -50,37 +49,40 @@ export const GameControls: React.FC = () => {
         ...capturedCitiesData
       ];
       
-      // Находим все города в радиусе 500 км от любого нашего города
-      const availableCities: City[] = [];
-      const cityIds = new Set<string>();
-      
-      for (const ourCity of ourCities) {
-        const citiesInRadius = getAllCitiesForTowers(
-          ourCity.position,
-          MAX_TOWER_DISTANCE,
-          WORLD_CITIES,
-          [] // Не исключаем никакие города - башни можно ставить и в наших городах
-        );
+      // Асинхронно загружаем реальные города через API
+      const loadRealCities = async () => {
+        const availableCities: City[] = [];
+        const cityIds = new Set<string>();
         
-        // Добавляем города, избегая дубликатов
-        for (const city of citiesInRadius) {
-          if (!cityIds.has(city.id)) {
-            cityIds.add(city.id);
-            availableCities.push(city);
+        // Для каждого нашего города загружаем реальные города в радиусе
+        for (const ourCity of ourCities) {
+          try {
+            const realCities = await getRealCities(ourCity.position, MAX_TOWER_DISTANCE);
+            
+            for (const city of realCities) {
+              if (!cityIds.has(city.id)) {
+                cityIds.add(city.id);
+                availableCities.push(city);
+              }
+            }
+          } catch (error) {
+            console.error('Ошибка загрузки городов:', error);
           }
         }
-      }
-      
-      // Добавляем наши города тоже (они могут не попасть в getAllCitiesInRadius)
-      for (const ourCity of ourCities) {
-        if (!cityIds.has(ourCity.id)) {
-          cityIds.add(ourCity.id);
-          availableCities.push(ourCity);
+        
+        // Добавляем наши города тоже
+        for (const ourCity of ourCities) {
+          if (!cityIds.has(ourCity.id)) {
+            cityIds.add(ourCity.id);
+            availableCities.push(ourCity);
+          }
         }
-      }
+        
+        setAvailableCitiesForTowers(availableCities);
+        setShowAvailableCitiesForTowers(true);
+      };
       
-      setAvailableCitiesForTowers(availableCities);
-      setShowAvailableCitiesForTowers(true);
+      loadRealCities();
     } else {
       setShowAvailableCitiesForTowers(false);
     }

@@ -382,6 +382,7 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
               <Circle
                 center={[city.position.lat, city.position.lng]}
                 radius={10000} // 10км радиус для видимости
+                interactive={false} // Отключаем интерактивность полностью
                 pathOptions={{
                   color: hasTower ? '#FFA500' : '#2196F3',
                   fillColor: hasTower ? '#FFA500' : '#2196F3',
@@ -389,15 +390,10 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
                   weight: 2,
                   dashArray: hasTower ? '5, 5' : undefined
                 }}
-                eventHandlers={{
-                  click: (e) => {
-                    // Не обрабатываем клик на круге, только на маркере
-                    e.originalEvent.stopPropagation();
-                  }
-                }}
               />
               <Marker
                 position={[city.position.lat, city.position.lng]}
+                zIndexOffset={1000}
                 icon={L.divIcon({
                   className: 'tower-placement-city-icon',
                   html: `
@@ -442,12 +438,12 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
                 eventHandlers={{
                   click: (e: LeafletMouseEvent) => {
                     e.originalEvent.stopPropagation();
+                    console.log('Клик по городу:', city.name, city.id);
                     if (!hasTower) {
-                      if (placeTowerInCity(placingTowerType, city.id)) {
-                        // Башня размещена успешно
-                      }
+                      const success = placeTowerInCity(placingTowerType, city.id);
+                      console.log('Результат размещения башни:', success);
                     } else {
-                      showNotification('Город занят', 'В этом городе уже есть башня!', 'warning');
+                      showNotification('Город занят', 'В этом городе уже есть башня!', 'warning', 2000);
                     }
                   }
                 }}

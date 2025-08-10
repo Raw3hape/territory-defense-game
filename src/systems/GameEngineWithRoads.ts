@@ -272,16 +272,16 @@ export class GameEngine {
 
       // Стреляем по врагу
       if (closestEnemy) {
-        tower.targetId = closestEnemy.id;
+        tower.targetId = (closestEnemy as Enemy).id;
         tower.lastShotTime = currentTime;
         
         // Создаем снаряд
         const projectile: Projectile = {
           id: `proj-${Date.now()}-${Math.random()}`,
           from: { ...tower.position },
-          to: { ...closestEnemy.position },
+          to: { ...(closestEnemy as Enemy).position },
           current: { ...tower.position },
-          targetId: closestEnemy.id,
+          targetId: (closestEnemy as Enemy).id,
           targetType: 'enemy',
           damage: tower.damage,
           speed: 300, // км/ч - быстрые снаряды

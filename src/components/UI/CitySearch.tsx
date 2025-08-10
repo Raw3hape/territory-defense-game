@@ -21,7 +21,7 @@ export const CitySearch: React.FC<CitySearchProps> = ({
   const [isSearching, setIsSearching] = useState(false);
   const [searchMode, setSearchMode] = useState<'local' | 'global'>('local');
   const searchRef = useRef<HTMLDivElement>(null);
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     if (isFocused) {

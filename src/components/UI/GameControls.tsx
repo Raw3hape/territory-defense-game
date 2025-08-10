@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { TowerType } from '../../types/game.types';
+import type { City } from '../../types/game.types';
 import { CityCapture } from './CityCapture';
+import { getAllCitiesInRadius } from '../../services/cityGeneratorService';
+import { WORLD_CITIES } from '../../data/worldCities';
 import './GameControls.css';
 
 const TOWER_INFO = {
@@ -21,7 +24,11 @@ export const GameControls: React.FC = () => {
     enemies,
     enemyBases,
     towers,
+    capturedCitiesData,
     setPlacingTowerType,
+    setAvailableCitiesForTowers,
+    setShowAvailableCitiesForTowers,
+    showAvailableCitiesForTowers,
     togglePause,
     setGameSpeed,
     getTowerLimit,
@@ -31,6 +38,53 @@ export const GameControls: React.FC = () => {
   const resources = player?.resources || { gold: 0, energy: 0, score: 0 };
   const cityHealth = player?.startCity?.health || 100;
   const cityMaxHealth = player?.startCity?.maxHealth || 100;
+  
+  // Обновляем список доступных городов для башен при изменении типа башни
+  useEffect(() => {
+    if (placingTowerType && player?.startCity) {
+      const MAX_TOWER_DISTANCE = 500; // км
+      
+      // Собираем все наши города
+      const ourCities = [
+        player.startCity,
+        ...capturedCitiesData
+      ];
+      
+      // Находим все города в радиусе 500 км от любого нашего города
+      const availableCities: City[] = [];
+      const cityIds = new Set<string>();
+      
+      for (const ourCity of ourCities) {
+        const citiesInRadius = getAllCitiesInRadius(
+          ourCity.position,
+          MAX_TOWER_DISTANCE,
+          WORLD_CITIES,
+          [] // Не исключаем никакие города - башни можно ставить и в наших городах
+        );
+        
+        // Добавляем города, избегая дубликатов
+        for (const city of citiesInRadius) {
+          if (!cityIds.has(city.id)) {
+            cityIds.add(city.id);
+            availableCities.push(city);
+          }
+        }
+      }
+      
+      // Добавляем наши города тоже (они могут не попасть в getAllCitiesInRadius)
+      for (const ourCity of ourCities) {
+        if (!cityIds.has(ourCity.id)) {
+          cityIds.add(ourCity.id);
+          availableCities.push(ourCity);
+        }
+      }
+      
+      setAvailableCitiesForTowers(availableCities);
+      setShowAvailableCitiesForTowers(true);
+    } else {
+      setShowAvailableCitiesForTowers(false);
+    }
+  }, [placingTowerType, player, capturedCitiesData, setAvailableCitiesForTowers, setShowAvailableCitiesForTowers]);
 
   return (
     <div className="game-controls">
@@ -110,7 +164,9 @@ export const GameControls: React.FC = () => {
         </div>
         {placingTowerType && (
           <div className="placement-hint">
-            Кликните на карту для размещения башни
+            🎯 Кликните на город на карте для размещения башни
+            <br/>
+            <small>Доступные города подсвечены синим цветом</small>
           </div>
         )}
       </div>

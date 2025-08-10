@@ -12,6 +12,8 @@ interface GameStore extends GameState {
   // UI state
   availableCitiesForCapture: City[];
   showAvailableCities: boolean;
+  availableCitiesForTowers: City[];
+  showAvailableCitiesForTowers: boolean;
   capturedCitiesData: CapturedCity[];
   gameOverData: {
     isOpen: boolean;
@@ -23,6 +25,7 @@ interface GameStore extends GameState {
   // Actions
   initGame: (startCity: City) => void;
   placeTower: (type: TowerType, position: Position) => boolean;
+  placeTowerInCity: (type: TowerType, cityId: string) => boolean;
   canCaptureCity: (cityId: string) => boolean;
   captureNewCity: (cityId: string) => boolean;
   getCityDefenseStatus: () => { cityId: string; health: number; maxHealth: number; towers: number }[];
@@ -30,6 +33,8 @@ interface GameStore extends GameState {
   getCurrentTowerCount: () => number;
   setAvailableCitiesForCapture: (cities: City[]) => void;
   setShowAvailableCities: (show: boolean) => void;
+  setAvailableCitiesForTowers: (cities: City[]) => void;
+  setShowAvailableCitiesForTowers: (show: boolean) => void;
   removeTower: (towerId: string) => void;
   updateEnemies: (deltaTime: number) => void;
   updateTowers: (deltaTime: number) => void;
@@ -73,6 +78,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       // Initial state
       availableCitiesForCapture: [],
       showAvailableCities: false,
+      availableCitiesForTowers: [],
+      showAvailableCitiesForTowers: false,
       capturedCitiesData: [],
       gameOverData: null,
       
@@ -204,9 +211,87 @@ export const useGameStore = create<GameStore>((set, get) => ({
               gold: state.player.resources.gold - cost
             }
           },
-          placingTowerType: undefined
+          placingTowerType: undefined,
+          showAvailableCitiesForTowers: false
         }));
 
+        return true;
+      },
+      
+      placeTowerInCity: (type, cityId) => {
+        const state = get();
+        const cost = TOWER_COSTS[type];
+        
+        // Проверяем золото
+        if (state.player.resources.gold < cost) {
+          showNotification('Недостаточно золота', `Нужно ${cost} золота для этой башни`, 'warning');
+          return false;
+        }
+        
+        // Проверяем лимит башен
+        const currentTowerCount = state.towers.length;
+        const towerLimit = get().getTowerLimit();
+        
+        if (currentTowerCount >= towerLimit) {
+          showNotification('Лимит башен', 'Захватите новый город для увеличения лимита!', 'warning');
+          return false;
+        }
+        
+        // Находим город
+        let cityPosition: Position | null = null;
+        
+        if (state.player.startCity?.id === cityId) {
+          cityPosition = state.player.startCity.position;
+        } else {
+          const capturedCity = state.capturedCitiesData.find(c => c.id === cityId);
+          if (capturedCity) {
+            cityPosition = capturedCity.position;
+          } else {
+            // Может быть это город из списка доступных для башен
+            const availableCity = state.availableCitiesForTowers.find(c => c.id === cityId);
+            if (availableCity) {
+              cityPosition = availableCity.position;
+            }
+          }
+        }
+        
+        if (!cityPosition) {
+          showNotification('Ошибка', 'Город не найден', 'error');
+          return false;
+        }
+
+        const newTower: Tower = {
+          id: `tower-${Date.now()}`,
+          type,
+          position: cityPosition,
+          level: 1,
+          damage: type === TowerType.BASIC ? 10 : 
+                  type === TowerType.SNIPER ? 25 :
+                  type === TowerType.SPLASH ? 15 : 5,
+          range: type === TowerType.BASIC ? 27 : 
+                 type === TowerType.SNIPER ? 50 :
+                 type === TowerType.SPLASH ? 20 : 17,
+          health: 100,
+          maxHealth: 100,
+          fireRate: type === TowerType.BASIC ? 2 : 
+                    type === TowerType.SNIPER ? 0.5 :
+                    type === TowerType.SPLASH ? 1.5 : 3
+        };
+
+        set((state) => ({
+          towers: [...state.towers, newTower],
+          player: {
+            ...state.player,
+            resources: {
+              ...state.player.resources,
+              gold: state.player.resources.gold - cost
+            }
+          },
+          placingTowerType: undefined,
+          showAvailableCitiesForTowers: false
+        }));
+        
+        showNotification('Башня установлена', `Башня размещена в городе`, 'success');
         return true;
       },
 
@@ -323,7 +408,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       },
 
       setPlacingTowerType: (type) => {
-        set({ placingTowerType: type });
+        set({ 
+          placingTowerType: type,
+          showAvailableCitiesForTowers: type !== undefined
+        });
       },
 
       selectTower: (tower) => {
@@ -446,6 +534,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
       
       setShowAvailableCities: (show) => {
         set({ showAvailableCities: show });
+      },
+      
+      setAvailableCitiesForTowers: (cities) => {
+        set({ availableCitiesForTowers: cities });
+      },
+      
+      setShowAvailableCitiesForTowers: (show) => {
+        set({ showAvailableCitiesForTowers: show });
       },
       
       damageCity: (cityId, damage) => {

@@ -161,7 +161,7 @@ const cityIcon = (isCaptured: boolean) => L.divIcon({
 
 // Компонент для обработки кликов на карте
 function MapClickHandler() {
-  const { placingTowerType, placeTower, showAvailableCities, availableCitiesForCapture, captureNewCity, setShowAvailableCities } = useGameStore();
+  const { placingTowerType, placeTower, showAvailableCities, showAvailableCitiesForTowers, availableCitiesForCapture, captureNewCity, setShowAvailableCities } = useGameStore();
   
   useMapEvents({
     click: (e) => {
@@ -190,18 +190,21 @@ function MapClickHandler() {
         }
       }
       
-      // Иначе размещаем башню
-      if (placingTowerType) {
+      // Если выбран тип башни и показываются города - не обрабатываем клик по карте
+      if (placingTowerType && showAvailableCitiesForTowers) {
+        // Клики по городам обрабатываются через eventHandlers на маркерах
+        return;
+      }
+      
+      // Иначе размещаем башню (старый способ - не используется сейчас)
+      if (placingTowerType && !showAvailableCitiesForTowers) {
         const position: Position = {
           lat: e.latlng.lat,
           lng: e.latlng.lng
         };
         
-        if (placeTower(placingTowerType, position)) {
-          // Башня размещена успешно
-        } else {
-          showNotification('Ошибка', 'Недостаточно золота для постройки башни!', 'warning');
-        }
+        // Старый способ - не должен работать, так как теперь башни ставятся только в городах
+        showNotification('Ошибка', 'Башни можно строить только в городах! Выберите город на карте.', 'warning');
       }
     }
   });
@@ -223,6 +226,9 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
     selectedTower,
     availableCitiesForCapture,
     showAvailableCities,
+    availableCitiesForTowers,
+    showAvailableCitiesForTowers,
+    placeTowerInCity,
     captureNewCity,
     capturedCitiesData
   } = useGameStore();
@@ -359,6 +365,105 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
           />
         )}
 
+        {/* Доступные города для размещения башен */}
+        {showAvailableCitiesForTowers && placingTowerType && availableCitiesForTowers.map(city => {
+          // Проверяем есть ли уже башня в этом городе
+          const hasTower = towers.some(t => 
+            Math.abs(t.position.lat - city.position.lat) < 0.001 && 
+            Math.abs(t.position.lng - city.position.lng) < 0.001
+          );
+          
+          // Проверяем, является ли это нашим городом
+          const isOurCity = player?.startCity?.id === city.id || 
+                           capturedCitiesData.some(c => c.id === city.id);
+          
+          return (
+            <React.Fragment key={`tower-city-${city.id}`}>
+              <Circle
+                center={[city.position.lat, city.position.lng]}
+                radius={10000} // 10км радиус для видимости
+                pathOptions={{
+                  color: hasTower ? '#FFA500' : '#2196F3',
+                  fillColor: hasTower ? '#FFA500' : '#2196F3',
+                  fillOpacity: 0.15,
+                  weight: 2,
+                  dashArray: hasTower ? '5, 5' : undefined
+                }}
+              />
+              <Marker
+                position={[city.position.lat, city.position.lng]}
+                icon={L.divIcon({
+                  className: 'tower-placement-city-icon',
+                  html: `
+                    <div style="
+                      width: 45px;
+                      height: 45px;
+                      background: ${hasTower ? 'linear-gradient(135deg, #FFA500, #FF8C00)' : isOurCity ? 'linear-gradient(135deg, #2196F3, #1976D2)' : 'linear-gradient(135deg, #42A5F5, #1E88E5)'};
+                      border: 3px solid white;
+                      border-radius: 50%;
+                      box-shadow: 0 4px 12px rgba(33, 150, 243, 0.5);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 20px;
+                      color: white;
+                      cursor: ${hasTower ? 'not-allowed' : 'pointer'};
+                      animation: ${hasTower ? 'none' : 'pulse 2s infinite'};
+                      position: relative;
+                      opacity: ${hasTower ? 0.7 : 1};
+                    ">
+                      ${hasTower ? '🔒' : '🎯'}
+                      <div style="
+                        position: absolute;
+                        top: -25px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        background: ${hasTower ? '#FFA500' : '#2196F3'};
+                        color: white;
+                        padding: 2px 8px;
+                        border-radius: 4px;
+                        font-size: 10px;
+                        font-weight: bold;
+                        white-space: nowrap;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                      ">${city.name}</div>
+                    </div>
+                  `,
+                  iconSize: [50, 50],
+                  iconAnchor: [25, 25]
+                })}
+                eventHandlers={{
+                  click: (e: LeafletMouseEvent) => {
+                    e.originalEvent.stopPropagation();
+                    if (!hasTower) {
+                      if (placeTowerInCity(placingTowerType, city.id)) {
+                        // Башня размещена успешно
+                      }
+                    } else {
+                      showNotification('Город занят', 'В этом городе уже есть башня!', 'warning');
+                    }
+                  }
+                }}
+              >
+                <Popup>
+                  <div>
+                    <h3>{hasTower ? '🔒 Город занят' : '🎯 Доступен для башни'}</h3>
+                    <p><strong>{city.name}</strong></p>
+                    <p>{city.country}</p>
+                    {hasTower ? (
+                      <p style={{ color: '#FFA500' }}>В этом городе уже есть башня</p>
+                    ) : (
+                      <p style={{ color: '#2196F3', fontWeight: 'bold' }}>
+                        Кликните для размещения башни
+                      </p>
+                    )}
+                  </div>
+                </Popup>
+              </Marker>
+            </React.Fragment>
+          );
+        })}
+        
         {/* Доступные для захвата города */}
         {showAvailableCities && availableCitiesForCapture.map(city => (
           <React.Fragment key={`capture-${city.id}`}>
@@ -443,6 +548,76 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
                 </div>
               </Popup>
             </Marker>
+          </React.Fragment>
+        ))}
+        
+        {/* Захваченные города */}
+        {capturedCitiesData.map(city => (
+          <React.Fragment key={`captured-${city.id}`}>
+            <Marker
+              position={[city.position.lat, city.position.lng]}
+              icon={L.divIcon({
+                className: 'captured-city-icon',
+                html: `
+                  <div style="
+                    width: 45px;
+                    height: 45px;
+                    background: linear-gradient(135deg, #4CAF50, #45a049);
+                    border: 3px solid white;
+                    border-radius: 50%;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 20px;
+                    position: relative;
+                  ">
+                    🏰
+                    <div style="
+                      position: absolute;
+                      bottom: -10px;
+                      left: 50%;
+                      transform: translateX(-50%);
+                      width: 40px;
+                      height: 4px;
+                      background: rgba(0,0,0,0.3);
+                      border-radius: 2px;
+                    ">
+                      <div style="
+                        width: ${(city.health / city.maxHealth) * 100}%;
+                        height: 100%;
+                        background: ${city.health > 50 ? '#4CAF50' : city.health > 25 ? '#FFA500' : '#FF0000'};
+                        border-radius: 2px;
+                      "></div>
+                    </div>
+                  </div>
+                `,
+                iconSize: [45, 45],
+                iconAnchor: [22.5, 22.5]
+              })}
+            >
+              <Popup>
+                <div>
+                  <h3>🏰 Захваченный город</h3>
+                  <p><strong>{city.name}</strong></p>
+                  <p>{city.country}</p>
+                  <p>Население: {city.population.toLocaleString()}</p>
+                  <p>Здоровье: {city.health}/{city.maxHealth}</p>
+                </div>
+              </Popup>
+            </Marker>
+            {/* Защитный периметр города */}
+            <Circle
+              center={[city.position.lat, city.position.lng]}
+              radius={20000} // 20 км радиус защиты
+              pathOptions={{
+                color: '#4CAF50',
+                fillColor: '#4CAF50',
+                fillOpacity: 0.05,
+                weight: 1,
+                dashArray: '5, 5'
+              }}
+            />
           </React.Fragment>
         ))}
         

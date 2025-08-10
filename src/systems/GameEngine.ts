@@ -243,11 +243,13 @@ export class GameEngine {
           to: { ...closestEnemy.position },
           current: { ...tower.position },
           targetId: closestEnemy.id,
+          targetType: 'enemy',
           damage: tower.damage,
           speed: 200, // км/ч
           color: tower.type === TowerType.BASIC ? '#4A90E2' :
                  tower.type === TowerType.SNIPER ? '#7B68EE' :
-                 tower.type === TowerType.SPLASH ? '#FF6B6B' : '#4ECDC4'
+                 tower.type === TowerType.SPLASH ? '#FF6B6B' : '#4ECDC4',
+          size: 5
         };
         
         state.addProjectile(projectile);

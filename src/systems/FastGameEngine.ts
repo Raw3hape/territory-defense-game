@@ -495,7 +495,7 @@ export class GameEngine {
 
       // Мгновенная стрельба - сразу наносим урон
       if (target) {
-        tower.targetId = target.id;
+        tower.targetId = (target as Enemy | EnemyBase).id;
         tower.lastShotTime = currentTime;
         
         // Мгновенно наносим урон цели

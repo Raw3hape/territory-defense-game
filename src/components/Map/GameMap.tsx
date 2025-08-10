@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Circle, Polygon } from 'react-leaflet';
-import L, { LeafletMouseEvent } from 'leaflet';
+import L from 'leaflet';
+import type { LeafletMouseEvent } from 'leaflet';
 import { useGameStore } from '../../store/gameStore';
-import { TowerType } from '../../types/game.types';
+import { TowerType, EnemyType } from '../../types/game.types';
 import type { Position, Enemy } from '../../types/game.types';
 import { FastProjectiles } from './FastProjectiles';
 import { EnemyPaths } from './EnemyPaths';
@@ -64,7 +65,7 @@ const createEnemyIcon = (enemy: Enemy) => {
   let size = 20;
   
   switch(enemy.type) {
-    case 'REGULAR':
+    case EnemyType.REGULAR:
       enemyStyle = `
         background: #FF3B30;
         border: 2px solid #8B0000;
@@ -72,7 +73,7 @@ const createEnemyIcon = (enemy: Enemy) => {
       enemyIcon = '👾'; // Обычный монстр
       size = 20;
       break;
-    case 'FAST':
+    case EnemyType.FAST:
       enemyStyle = `
         background: #FFD700;
         border: 2px solid #FFA500;
@@ -80,7 +81,7 @@ const createEnemyIcon = (enemy: Enemy) => {
       enemyIcon = '⚡'; // Молния для быстрого
       size = 18;
       break;
-    case 'TANK':
+    case EnemyType.TANK:
       enemyStyle = `
         background: #666666;
         border: 3px solid #333333;

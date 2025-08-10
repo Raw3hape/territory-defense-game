@@ -3,6 +3,7 @@ import { TowerType, EnemyType } from '../types/game.types';
 import type { Enemy, Position, Tower, Projectile, EnemyBase, City } from '../types/game.types';
 import { getNearestCities, calculateDistance, getAllCities } from '../data/worldCities';
 import { getRouteByRoad, getNearestRoad } from '../services/routingService';
+import { showNotification } from '../components/UI/GameNotification';
 
 // Дебаг режим
 const DEBUG = true;
@@ -415,20 +416,29 @@ export class GameEngine {
           }
         }
       } else {
-        // Враг достиг города
-        const damage = 10 + state.currentWave * 2; // Урон растет с волнами
-        
-        // Определяем, какой город атаковал враг
-        if (enemy.targetCityId) {
-          // Наносим урон конкретному городу
-          state.damageCity(enemy.targetCityId, damage);
-        } else {
-          // По умолчанию атакуем стартовый город
-          totalDamage += damage;
+        // Проверяем расстояние до цели для атаки
+        const targetCity = state.capturedCitiesData.find(c => c.id === enemy.targetCityId) || player.startCity;
+        if (targetCity) {
+          const distanceToCity = calculateDistance(enemy.position, targetCity.position);
+          
+          // Если враг в радиусе 1 км от города, наносим урон
+          if (distanceToCity <= 1) {
+            const damage = 10 + state.currentWave * 2; // Урон растет с волнами
+            
+            // Наносим урон городу каждые 500мс (2 раза в секунду)
+            if (!enemy.lastAttackTime || currentTime - enemy.lastAttackTime > 500) {
+              if (enemy.targetCityId) {
+                state.damageCity(enemy.targetCityId, damage);
+              } else if (player.startCity) {
+                state.damageCity(player.startCity.id, damage);
+              }
+              enemy.lastAttackTime = currentTime;
+            }
+          } else {
+            // Если враг не у города, но путь закончился, удаляем его
+            enemiesToRemove.push(enemy.id);
+          }
         }
-        
-        enemiesToRemove.push(enemy.id);
-        // Не считаем врагов, достигших города, как убитых для прогресса волны
       }
     });
     
@@ -666,7 +676,12 @@ export class GameEngine {
       
       // Показываем сообщение с небольшой задержкой
       setTimeout(() => {
-        alert(`Игра окончена! Ваш город захвачен.\nВолна: ${state.currentWave}\nОчки: ${state.player.resources.score}`);
+        showNotification(
+          'Игра окончена!', 
+          `Ваш город захвачен! Волна: ${state.currentWave}, Очки: ${state.player.resources.score}`,
+          'error',
+          10000
+        );
         
         // Полный сброс состояния
         state.resetGame();

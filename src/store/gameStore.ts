@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { TowerType } from '../types/game.types';
 import type { GameState, Tower, Enemy, City, Resources, Position, Projectile, EnemyBase } from '../types/game.types';
+import { showNotification } from '../components/UI/GameNotification';
 
 interface CapturedCity extends City {
   health: number;
@@ -165,8 +166,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
         
         if (!isNearCity) {
-          console.log('Башни можно строить только в радиусе 500 км от ваших городов!');
-          alert('⚠️ Башни можно строить только в радиусе 500 км от ваших городов!');
+          showNotification('Ошибка размещения', 'Башни можно строить только в радиусе 500 км от ваших городов!', 'warning');
           return false;
         }
 
@@ -451,7 +451,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           // Проверяем, не уничтожен ли город
           const destroyedCity = updatedCities.find(city => city.id === cityId && city.health <= 0);
           if (destroyedCity) {
-            alert(`⚠️ Город ${destroyedCity.name} уничтожен!\n💀 Игра окончена!`);
+            showNotification('Город уничтожен!', `${destroyedCity.name} уничтожен! Игра окончена!`, 'error', 5000);
             // Сбрасываем игру
             get().resetGame();
             return { capturedCitiesData: [] };
@@ -461,7 +461,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           if (cityId === state.player.startCity?.id) {
             const newHealth = Math.max(0, (state.player.startCity.health || 100) - damage);
             if (newHealth <= 0) {
-              alert(`⚠️ Стартовый город ${state.player.startCity.name} уничтожен!\n💀 Игра окончена!`);
+              showNotification('Стартовый город уничтожен!', `${state.player.startCity.name} уничтожен! Игра окончена!`, 'error', 5000);
               get().resetGame();
               return { capturedCitiesData: [] };
             }

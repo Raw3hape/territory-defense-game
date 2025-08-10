@@ -47,6 +47,7 @@ export interface Enemy {
   pathIndex: number;
   path: Position[];
   targetCityId: string;
+  lastAttackTime?: number;
 }
 
 export enum EnemyType {

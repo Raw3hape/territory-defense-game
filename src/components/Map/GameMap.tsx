@@ -5,6 +5,7 @@ import type { LeafletMouseEvent } from 'leaflet';
 import { useGameStore } from '../../store/gameStore';
 import { TowerType, EnemyType } from '../../types/game.types';
 import type { Position, Enemy } from '../../types/game.types';
+import { showNotification } from '../UI/GameNotification';
 import { FastProjectiles } from './FastProjectiles';
 import { EnemyPaths } from './EnemyPaths';
 import { CityBoundaries } from './CityBoundaries';
@@ -180,10 +181,10 @@ function MapClickHandler() {
           if (state.player.resources.gold >= 500) {
             if (captureNewCity(clickedCity.id)) {
               setShowAvailableCities(false);
-              alert(`✅ Город ${clickedCity.name} успешно захвачен!\n🏰 Новый лимит башен: ${state.getTowerLimit()}`);
+              showNotification('Город захвачен!', `${clickedCity.name} успешно захвачен! Новый лимит башен: ${state.getTowerLimit()}`, 'success');
             }
           } else {
-            alert(`⚠️ Недостаточно золота!\n💰 Нужно: 500\n💰 У вас: ${state.player.resources.gold}`);
+            showNotification('Недостаточно золота!', `Нужно: 500 золота. У вас: ${state.player.resources.gold}`, 'warning');
           }
           return;
         }
@@ -199,7 +200,7 @@ function MapClickHandler() {
         if (placeTower(placingTowerType, position)) {
           // Башня размещена успешно
         } else {
-          alert('Недостаточно золота!');
+          showNotification('Ошибка', 'Недостаточно золота для постройки башни!', 'warning');
         }
       }
     }
@@ -252,7 +253,13 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          maxZoom={19}
+          tileSize={256}
+          zoomOffset={0}
+          keepBuffer={4}
+          updateWhenIdle={false}
+          updateWhenZooming={false}
         />
         
         <MapClickHandler />
@@ -415,10 +422,10 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
                     if (captureNewCity(city.id)) {
                       // Убираем подсветку после захвата
                       state.setShowAvailableCities(false);
-                      alert(`✅ Город ${city.name} успешно захвачен!\n🏰 Новый лимит башен: ${state.getTowerLimit()}`);
+                      showNotification('Город захвачен!', `${city.name} успешно захвачен! Новый лимит башен: ${state.getTowerLimit()}`, 'success');
                     }
                   } else {
-                    alert(`⚠️ Недостаточно золота!\n💰 Нужно: 500\n💰 У вас: ${state.player.resources.gold}`);
+                    showNotification('Недостаточно золота!', `Нужно: 500 золота. У вас: ${state.player.resources.gold}`, 'warning');
                   }
                 }
               }}

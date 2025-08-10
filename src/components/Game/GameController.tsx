@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { gameEngine } from '../../systems/FastGameEngine';
 import { useGameStore } from '../../store/gameStore';
+import { NotificationManager } from '../UI/GameNotification';
 
 export const GameController: React.FC = () => {
   const player = useGameStore(state => state.player);
@@ -16,5 +17,5 @@ export const GameController: React.FC = () => {
     };
   }, [player?.startCity]);
 
-  return null; // Этот компонент не рендерит UI
+  return <NotificationManager />; // Рендерим менеджер уведомлений
 };

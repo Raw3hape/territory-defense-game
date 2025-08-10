@@ -3,7 +3,7 @@ import { useGameStore } from '../../store/gameStore';
 import { TowerType } from '../../types/game.types';
 import type { City } from '../../types/game.types';
 import { CityCapture } from './CityCapture';
-import { getAllCitiesInRadius } from '../../services/cityGeneratorService';
+import { getAllCitiesForTowers } from '../../services/cityGeneratorService';
 import { WORLD_CITIES } from '../../data/worldCities';
 import './GameControls.css';
 
@@ -55,7 +55,7 @@ export const GameControls: React.FC = () => {
       const cityIds = new Set<string>();
       
       for (const ourCity of ourCities) {
-        const citiesInRadius = getAllCitiesInRadius(
+        const citiesInRadius = getAllCitiesForTowers(
           ourCity.position,
           MAX_TOWER_DISTANCE,
           WORLD_CITIES,

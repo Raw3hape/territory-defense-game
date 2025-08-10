@@ -30,7 +30,8 @@ export const CityCapture: React.FC = () => {
         player.startCity.position,
         MAX_CAPTURE_DISTANCE,
         WORLD_CITIES,
-        excludeIds
+        excludeIds,
+        30 // Минимум 30км для захвата городов
       );
       
       setAvailableCities(available);

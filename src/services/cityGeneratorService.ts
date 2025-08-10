@@ -56,13 +56,14 @@ export function getAllCitiesInRadius(
   centerPosition: Position, 
   radius: number,
   existingCities: City[],
-  excludeIds: string[] = []
+  excludeIds: string[] = [],
+  minDistance: number = 30 // По умолчанию минимум 30км для захвата городов
 ): City[] {
   // Фильтруем существующие города по радиусу
   const realCitiesInRadius = existingCities.filter(city => {
     if (excludeIds.includes(city.id)) return false;
     const distance = calculateDistance(centerPosition, city.position);
-    return distance <= radius && distance > 30; // Минимум 30км
+    return distance <= radius && distance >= minDistance;
   });
   
   // Если реальных городов достаточно, возвращаем их
@@ -74,4 +75,21 @@ export function getAllCitiesInRadius(
   const generatedCities = generateNearbyCities(centerPosition, radius, 15 - realCitiesInRadius.length);
   
   return [...realCitiesInRadius, ...generatedCities];
+}
+
+// Получить ВСЕ города в радиусе для размещения башен (включая близкие)
+export function getAllCitiesForTowers(
+  centerPosition: Position,
+  radius: number,
+  existingCities: City[],
+  excludeIds: string[] = []
+): City[] {
+  // Для башен включаем ВСЕ города в радиусе, даже очень близкие
+  const citiesInRadius = existingCities.filter(city => {
+    if (excludeIds.includes(city.id)) return false;
+    const distance = calculateDistance(centerPosition, city.position);
+    return distance <= radius; // Без минимального расстояния
+  });
+  
+  return citiesInRadius;
 }

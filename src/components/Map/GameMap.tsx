@@ -389,6 +389,12 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
                   weight: 2,
                   dashArray: hasTower ? '5, 5' : undefined
                 }}
+                eventHandlers={{
+                  click: (e) => {
+                    // Не обрабатываем клик на круге, только на маркере
+                    e.originalEvent.stopPropagation();
+                  }
+                }}
               />
               <Marker
                 position={[city.position.lat, city.position.lng]}
@@ -396,8 +402,8 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
                   className: 'tower-placement-city-icon',
                   html: `
                     <div style="
-                      width: 45px;
-                      height: 45px;
+                      width: 50px;
+                      height: 50px;
                       background: ${hasTower ? 'linear-gradient(135deg, #FFA500, #FF8C00)' : isOurCity ? 'linear-gradient(135deg, #2196F3, #1976D2)' : 'linear-gradient(135deg, #42A5F5, #1E88E5)'};
                       border: 3px solid white;
                       border-radius: 50%;
@@ -405,14 +411,15 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
                       display: flex;
                       align-items: center;
                       justify-content: center;
-                      font-size: 20px;
+                      font-size: 24px;
                       color: white;
                       cursor: ${hasTower ? 'not-allowed' : 'pointer'};
                       animation: ${hasTower ? 'none' : 'pulse 2s infinite'};
                       position: relative;
                       opacity: ${hasTower ? 0.7 : 1};
+                      z-index: 1000;
                     ">
-                      ${hasTower ? '🔒' : '🎯'}
+                      ${hasTower ? '🔒' : '🏗️'}
                       <div style="
                         position: absolute;
                         top: -25px;
@@ -429,8 +436,8 @@ export const GameMap: React.FC<GameMapProps> = ({ center }) => {
                       ">${city.name}</div>
                     </div>
                   `,
-                  iconSize: [50, 50],
-                  iconAnchor: [25, 25]
+                  iconSize: [55, 55],
+                  iconAnchor: [27, 27]
                 })}
                 eventHandlers={{
                   click: (e: LeafletMouseEvent) => {

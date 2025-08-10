@@ -152,14 +152,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
           return false;
         }
         
-        // Проверяем, что башня строится только рядом с городами (в радиусе 500 км)
+        // Проверяем, что башня строится только рядом с городами (в радиусе 300 км)
         const allCities = [
           state.player.startCity,
           ...(state.capturedCitiesData || [])
         ].filter(Boolean);
         
         let isNearCity = false;
-        const MAX_TOWER_DISTANCE = 500; // км
+        const MAX_TOWER_DISTANCE = 300; // км
         
         for (const city of allCities) {
           if (!city) continue;
@@ -180,7 +180,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
         
         if (!isNearCity) {
-          showNotification('Ошибка размещения', 'Башни можно строить только в радиусе 500 км от ваших городов!', 'warning');
+          showNotification('Ошибка размещения', 'Башни можно строить только в радиусе 300 км от ваших городов!', 'warning');
           return false;
         }
 

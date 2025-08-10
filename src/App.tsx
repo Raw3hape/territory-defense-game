@@ -20,7 +20,7 @@ function App() {
     
     try {
       // Предзагружаем только ближайшие важные города
-      await preloadCitiesInArea(city.position, 500);  // Для башен
+      await preloadCitiesInArea(city.position, 300);  // Для башен
       
       console.log('Города предзагружены для быстрой игры');
     } catch (error) {

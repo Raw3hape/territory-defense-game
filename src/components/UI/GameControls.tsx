@@ -41,7 +41,7 @@ export const GameControls: React.FC = () => {
   // Обновляем список доступных городов для башен при изменении типа башни
   useEffect(() => {
     if (placingTowerType && player?.startCity) {
-      const MAX_TOWER_DISTANCE = 500; // км
+      const MAX_TOWER_DISTANCE = 300; // км
       
       // Собираем все наши города
       const ourCities = [

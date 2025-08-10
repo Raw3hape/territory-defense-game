@@ -115,6 +115,30 @@ export const WORLD_CITIES: City[] = [
   { id: 'johannesburg', name: 'Johannesburg', position: { lat: -26.2041, lng: 28.0473 }, population: 5700000, country: 'South Africa' },
   { id: 'nairobi', name: 'Nairobi', position: { lat: -1.2921, lng: 36.8219 }, population: 5000000, country: 'Kenya', isCapital: true },
   
+  // Южная Африка - дополнительные города
+  { id: 'pretoria', name: 'Pretoria', position: { lat: -25.7479, lng: 28.2293 }, population: 750000, country: 'South Africa', isCapital: true },
+  { id: 'cape-town', name: 'Cape Town', position: { lat: -33.9249, lng: 18.4241 }, population: 4600000, country: 'South Africa' },
+  { id: 'durban', name: 'Durban', position: { lat: -29.8587, lng: 31.0218 }, population: 3900000, country: 'South Africa' },
+  { id: 'port-elizabeth', name: 'Port Elizabeth', position: { lat: -33.9608, lng: 25.6022 }, population: 1200000, country: 'South Africa' },
+  { id: 'bloemfontein', name: 'Bloemfontein', position: { lat: -29.0852, lng: 26.1596 }, population: 460000, country: 'South Africa' },
+  { id: 'east-london', name: 'East London', position: { lat: -33.0153, lng: 27.9116 }, population: 270000, country: 'South Africa' },
+  { id: 'kimberley', name: 'Kimberley', position: { lat: -28.7282, lng: 24.7499 }, population: 225000, country: 'South Africa' },
+  { id: 'nelspruit', name: 'Nelspruit', position: { lat: -25.4745, lng: 30.9694 }, population: 110000, country: 'South Africa' },
+  { id: 'polokwane', name: 'Polokwane', position: { lat: -23.9045, lng: 29.4689 }, population: 130000, country: 'South Africa' },
+  { id: 'rustenburg', name: 'Rustenburg', position: { lat: -25.6678, lng: 27.2421 }, population: 150000, country: 'South Africa' },
+  { id: 'vereeniging', name: 'Vereeniging', position: { lat: -26.6736, lng: 27.9319 }, population: 120000, country: 'South Africa' },
+  { id: 'soweto', name: 'Soweto', position: { lat: -26.2678, lng: 27.8585 }, population: 1300000, country: 'South Africa' },
+  
+  // Соседние страны
+  { id: 'gaborone', name: 'Gaborone', position: { lat: -24.6282, lng: 25.9231 }, population: 230000, country: 'Botswana', isCapital: true },
+  { id: 'francistown', name: 'Francistown', position: { lat: -21.1700, lng: 27.5100 }, population: 100000, country: 'Botswana' },
+  { id: 'maputo', name: 'Maputo', position: { lat: -25.9692, lng: 32.5732 }, population: 1100000, country: 'Mozambique', isCapital: true },
+  { id: 'harare', name: 'Harare', position: { lat: -17.8292, lng: 31.0522 }, population: 1600000, country: 'Zimbabwe', isCapital: true },
+  { id: 'bulawayo', name: 'Bulawayo', position: { lat: -20.1539, lng: 28.5867 }, population: 650000, country: 'Zimbabwe' },
+  { id: 'windhoek', name: 'Windhoek', position: { lat: -22.5609, lng: 17.0658 }, population: 330000, country: 'Namibia', isCapital: true },
+  { id: 'maseru', name: 'Maseru', position: { lat: -29.3167, lng: 27.4833 }, population: 330000, country: 'Lesotho', isCapital: true },
+  { id: 'mbabane', name: 'Mbabane', position: { lat: -26.3167, lng: 31.1333 }, population: 95000, country: 'Eswatini', isCapital: true },
+  
   // Океания
   { id: 'sydney', name: 'Sydney', position: { lat: -33.8688, lng: 151.2093 }, population: 5300000, country: 'Australia' },
   { id: 'melbourne', name: 'Melbourne', position: { lat: -37.8136, lng: 144.9631 }, population: 5100000, country: 'Australia' },

@@ -70,13 +70,12 @@ export async function getRealCitiesFromOSM(
     const east = center.lng + lngDegrees;
     
     // Overpass QL запрос для получения городов
-    // Получаем все города и крупные поселения
+    // Упрощенный запрос без фильтрации по населению
     const query = `
       [out:json][timeout:10];
       (
         node["place"="city"]["name"](${south},${west},${north},${east});
         node["place"="town"]["name"](${south},${west},${north},${east});
-        node["place"="village"]["name"]["population">"10000"](${south},${west},${north},${east});
       );
       out body 50;
     `;
@@ -191,23 +190,24 @@ export async function getRealCities(
 ): Promise<City[]> {
   let cities: City[] = [];
   
-  // Пробуем OSM Overpass API (самый точный)
-  cities = await getRealCitiesFromOSM(center, radiusKm);
+  // Сначала используем локальную базу (она всегда доступна и быстрая)
+  cities = getLocalCities(center, radiusKm);
   
-  if (cities.length === 0) {
-    // Если OSM не работает, пробуем GeoNames
-    cities = await getRealCitiesFromGeoNames(center, radiusKm);
-  }
-  
-  if (cities.length === 0) {
-    // Если и GeoNames не работает, пробуем Photon
-    cities = await getRealCitiesFromPhoton(center, radiusKm);
-  }
-  
-  if (cities.length === 0) {
-    // Если все API недоступны, используем локальную базу
-    console.warn('Все API недоступны, используем локальную базу городов');
-    cities = getLocalCities(center, radiusKm);
+  // Если в локальной базе мало городов, пробуем внешние API
+  if (cities.length < 10) {
+    // Пробуем OSM Overpass API
+    const osmCities = await getRealCitiesFromOSM(center, radiusKm);
+    if (osmCities.length > 0) {
+      cities = [...cities, ...osmCities];
+    }
+    
+    // Если все еще мало городов, пробуем GeoNames
+    if (cities.length < 10) {
+      const geoNamesCities = await getRealCitiesFromGeoNames(center, radiusKm);
+      if (geoNamesCities.length > 0) {
+        cities = [...cities, ...geoNamesCities];
+      }
+    }
   }
   
   // Убираем дубликаты по названию и близкому расположению

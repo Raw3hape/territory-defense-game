@@ -19,11 +19,8 @@ function App() {
     setIsLoadingCities(true);
     
     try {
-      // Предзагружаем города в радиусе 1000 км от стартового города
-      await Promise.all([
-        preloadCitiesInArea(city.position, 500),  // Для башен
-        preloadCitiesInArea(city.position, 1000), // Для будущих захватов
-      ]);
+      // Предзагружаем только ближайшие важные города
+      await preloadCitiesInArea(city.position, 500);  // Для башен
       
       console.log('Города предзагружены для быстрой игры');
     } catch (error) {

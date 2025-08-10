@@ -17,7 +17,8 @@ export async function getRealCitiesFromGeoNames(
 
   try {
     // GeoNames API для поиска городов в радиусе (используем HTTPS)
-    const url = `https://secure.geonames.org/findNearbyPlaceNameJSON?lat=${center.lat}&lng=${center.lng}&radius=${radiusKm}&cities=cities15000&maxRows=500&username=${GEONAMES_USERNAME}`;
+    // Ограничиваем до 50 городов для быстрой загрузки
+    const url = `https://secure.geonames.org/findNearbyPlaceNameJSON?lat=${center.lat}&lng=${center.lng}&radius=${radiusKm}&cities=cities15000&maxRows=50&username=${GEONAMES_USERNAME}`;
     
     const response = await fetch(url);
     const data = await response.json();
@@ -69,12 +70,14 @@ export async function getRealCitiesFromOSM(
     const east = center.lng + lngDegrees;
     
     // Overpass QL запрос для получения городов
+    // Фильтруем только города с населением больше 50000
     const query = `
-      [out:json][timeout:25];
+      [out:json][timeout:10];
       (
-        node["place"~"city|town"]["name"](${south},${west},${north},${east});
+        node["place"="city"]["name"]["population"](${south},${west},${north},${east});
+        node["place"="town"]["name"]["population">"50000"](${south},${west},${north},${east});
       );
-      out body;
+      out body 30;
     `;
     
     const response = await fetch('https://overpass-api.de/api/interpreter', {
@@ -182,7 +185,8 @@ export function getLocalCities(
 // Главная функция - пробует разные источники
 export async function getRealCities(
   center: Position,
-  radiusKm: number
+  radiusKm: number,
+  maxCities: number = 20 // Ограничение количества городов
 ): Promise<City[]> {
   let cities: City[] = [];
   
@@ -215,7 +219,27 @@ export async function getRealCities(
     }
   });
   
-  return Array.from(uniqueCities.values());
+  // Сортируем города по приоритету:
+  // 1. Столицы
+  // 2. По населению (большие города важнее)
+  // 3. По расстоянию (ближе - важнее)
+  const sortedCities = Array.from(uniqueCities.values()).sort((a, b) => {
+    // Столицы в приоритете
+    if (a.isCapital && !b.isCapital) return -1;
+    if (!a.isCapital && b.isCapital) return 1;
+    
+    // Затем по населению
+    const popDiff = b.population - a.population;
+    if (Math.abs(popDiff) > 100000) return popDiff;
+    
+    // Затем по расстоянию
+    const distA = calculateDistance(center, a.position);
+    const distB = calculateDistance(center, b.position);
+    return distA - distB;
+  });
+  
+  // Возвращаем ограниченное количество самых важных городов
+  return sortedCities.slice(0, maxCities);
 }
 
 // Функция для предзагрузки городов в области
@@ -223,6 +247,6 @@ export async function preloadCitiesInArea(
   center: Position,
   radiusKm: number
 ): Promise<void> {
-  // Загружаем города заранее в кэш
-  await getRealCities(center, radiusKm);
+  // Загружаем города заранее в кэш (максимум 20 важных городов)
+  await getRealCities(center, radiusKm, 20);
 }

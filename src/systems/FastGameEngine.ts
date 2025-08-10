@@ -393,6 +393,7 @@ export class GameEngine {
     const player = state.player;
     const enemiesToRemove: string[] = [];
     let totalDamage = 0;
+    const currentTime = performance.now();
     
     // Обновляем всех врагов
     enemies.forEach(enemy => {

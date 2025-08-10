@@ -1,8 +1,6 @@
 import type { City, Position } from '../types/game.types';
 import { calculateDistance } from '../data/worldCities';
-
-// Кэш для городов
-const citiesCache = new Map<string, City[]>();
+import { citiesCache } from './citiesCache';
 
 // GeoNames API - бесплатный сервис с реальными городами
 const GEONAMES_USERNAME = 'territorydefense'; // Нужно зарегистрироваться на geonames.org
@@ -11,10 +9,10 @@ export async function getRealCitiesFromGeoNames(
   center: Position,
   radiusKm: number
 ): Promise<City[]> {
-  const cacheKey = `${center.lat.toFixed(1)},${center.lng.toFixed(1)}-${radiusKm}`;
-  
-  if (citiesCache.has(cacheKey)) {
-    return citiesCache.get(cacheKey)!;
+  // Проверяем глобальный кэш
+  const cached = citiesCache.get(center, radiusKm);
+  if (cached) {
+    return cached;
   }
 
   try {
@@ -41,7 +39,7 @@ export async function getRealCitiesFromGeoNames(
       isCapital: place.fcode === 'PPLC' || place.fcl === 'PPLC'
     }));
     
-    citiesCache.set(cacheKey, cities);
+    citiesCache.set(center, radiusKm, cities);
     return cities;
   } catch (error) {
     console.error('Error fetching from GeoNames:', error);
@@ -54,10 +52,10 @@ export async function getRealCitiesFromOSM(
   center: Position,
   radiusKm: number
 ): Promise<City[]> {
-  const cacheKey = `osm-${center.lat.toFixed(1)},${center.lng.toFixed(1)}-${radiusKm}`;
-  
-  if (citiesCache.has(cacheKey)) {
-    return citiesCache.get(cacheKey)!;
+  // Проверяем глобальный кэш
+  const cached = citiesCache.get(center, radiusKm);
+  if (cached) {
+    return cached;
   }
 
   try {
@@ -107,7 +105,7 @@ export async function getRealCitiesFromOSM(
         return distance <= radiusKm;
       });
     
-    citiesCache.set(cacheKey, cities);
+    citiesCache.set(center, radiusKm, cities);
     return cities;
   } catch (error) {
     console.error('Error fetching from OSM:', error);
@@ -120,10 +118,10 @@ export async function getRealCitiesFromPhoton(
   center: Position,
   radiusKm: number
 ): Promise<City[]> {
-  const cacheKey = `photon-${center.lat.toFixed(1)},${center.lng.toFixed(1)}-${radiusKm}`;
-  
-  if (citiesCache.has(cacheKey)) {
-    return citiesCache.get(cacheKey)!;
+  // Проверяем глобальный кэш
+  const cached = citiesCache.get(center, radiusKm);
+  if (cached) {
+    return cached;
   }
 
   try {
@@ -156,7 +154,7 @@ export async function getRealCitiesFromPhoton(
         return distance <= radiusKm;
       });
     
-    citiesCache.set(cacheKey, cities);
+    citiesCache.set(center, radiusKm, cities);
     return cities;
   } catch (error) {
     console.error('Error fetching from Photon:', error);

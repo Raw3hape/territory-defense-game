@@ -4,17 +4,36 @@ import { CitySearch } from './components/UI/CitySearch';
 import { GameControls } from './components/UI/GameControls';
 import { GameController } from './components/Game/GameController';
 import { GameOverModal } from './components/UI/GameOverModal';
+import { LoadingOverlay } from './components/UI/LoadingOverlay';
 import { useGameStore } from './store/gameStore';
+import { preloadCitiesInArea } from './services/geoNamesService';
 import type { City } from './types/game.types';
 import './App.css';
 
 function App() {
   const [gameStarted, setGameStarted] = useState(false);
+  const [isLoadingCities, setIsLoadingCities] = useState(false);
   const { initGame, player, gameOverData, resetGame } = useGameStore();
 
-  const handleSelectCity = (city: City) => {
-    initGame(city);
-    setGameStarted(true);
+  const handleSelectCity = async (city: City) => {
+    setIsLoadingCities(true);
+    
+    try {
+      // Предзагружаем города в радиусе 1000 км от стартового города
+      await Promise.all([
+        preloadCitiesInArea(city.position, 500),  // Для башен
+        preloadCitiesInArea(city.position, 1000), // Для будущих захватов
+      ]);
+      
+      console.log('Города предзагружены для быстрой игры');
+    } catch (error) {
+      console.error('Ошибка предзагрузки городов:', error);
+      // Продолжаем игру даже если предзагрузка не удалась
+    } finally {
+      setIsLoadingCities(false);
+      initGame(city);
+      setGameStarted(true);
+    }
   };
 
   // Проверяем, есть ли сохраненная игра
@@ -26,7 +45,9 @@ function App() {
 
   if (!gameStarted) {
     return (
-      <div className="start-screen">
+      <>
+        {isLoadingCities && <LoadingOverlay message="Загрузка карты региона..." />}
+        <div className="start-screen">
         <div className="start-container">
           <h1 className="game-title">🌍 Territory Defense</h1>
           <p className="game-subtitle">
@@ -63,6 +84,7 @@ function App() {
           </div>
         </div>
       </div>
+      </>
     );
   }
 
